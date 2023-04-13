@@ -1,8 +1,8 @@
 const express = require('express');
 const { dbConnection } = require("./database/config");
 const cors = require("cors");
-// const { todosRoutes } = require ("./routes/todos");
-const { usersRoutes } = require("./routes/users.js");
+const  todosRoutes  = require ("./routes/todos");
+const  usersRoutes  = require("./routes/users");
 const cookieParser = require ("cookie-parser");
 
 
@@ -15,10 +15,12 @@ dbConnection();
 
 // MIDDLEWARE
 app.use(express.json());
+app.use(express.urlencoded({extended: true}))
 app.use(cors());
+app.use(cookieParser());
 
-// app.use("/api/todos", todosRoutes);
-app.use("/users", usersRoutes);
+app.use("/api/todos", todosRoutes);
+app.use("/api/users", usersRoutes);
 
 
 
