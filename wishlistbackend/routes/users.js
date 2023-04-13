@@ -1,8 +1,8 @@
 const express = require('express');
-const {register, login, logout, getMe, updateDetails, updatePassword, deleteUser} = require("../controllers/usersController");
+const {register, login, logout, getMe, updateDetails, updatePassword, deleteUser} = require("../controllers/userController");
 const authorize = require('../middleware/auth');
 const { registerRules, loginRules, updateDetailsRules, updatePasswordRules } = require('../middleware/validator');
-const validateResult = require('../middleware/validationResults');
+const validateResult = require('../middleware/validationResult');
 
 const router = express.Router();
 
@@ -18,6 +18,6 @@ router.put("/updatedetails",  authorize, updateDetailsRules, validateResult, upd
 
 router.put("/updatepassword", authorize, updatePasswordRules, validateResult, updatePassword);
 
-router.delete("/delete",authorize, deleteUser);
+router.delete("/delete", authorize, deleteUser);
 
 module.exports = router;
