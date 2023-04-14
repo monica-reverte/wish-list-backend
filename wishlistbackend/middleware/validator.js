@@ -1,27 +1,27 @@
 const {check} = require("express-validator");
 
 const registerRules = [
-    check("name", "Name is Required").notEmpty().trim().escape(),
-    check("email", "Please give valid Email").isEmail().normalizeEmail(),
-    check("password", "Password shoulg be 6 or more characters").isLength({min:6})
+    check('name', 'Name is required').notEmpty(),
+    check('email', 'Please enter a valid email').isEmail(),
+    check('password', 'Please enter a strong password').isLength({ min: 6 }),
 ];
 
 
 const loginRules = [
-    check("email", "Please give valid Email").isEmail().normalizeEmail(),
-    check("password", "Password shoulg be 6 or more characters").isLength({min:6})
+    check("email", "Please give valid Email").isEmail(),
+    check("password", "Password should be 6 or more characters").isLength({min:6})
 ]
 
 const updateDetailsRules = [
 
     check("name", "Name is Required").notEmpty().trim().escape(),
     check("email", "Please give valid Email").isEmail().normalizeEmail(),
-    check("password", "Password shoulg be 6 or more characters").isLength({min:6})
+    check("password", "Password should be 6 or more characters").isLength({min:6})
 ];
 
 const updatePasswordRules = [
-    check("password", "Password shoulg be 6 or more characters").isLength({min:6}),
-    check("newPassword", "Password shoulg be 6 or more characters").isLength({min:6})
+    check("password", "Password should be 6 or more characters").isLength({min:6}),
+    check("newPassword", "Password should be 6 or more characters").isLength({min:6})
 ];
 
 const createTodoRules = [

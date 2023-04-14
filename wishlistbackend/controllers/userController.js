@@ -3,30 +3,42 @@ const Todo = require("../models/Todo");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+
+
+
 const register = async (req, res) => {
     const {name, email, password} = req.body;
 
     try{
+
         let user = await User.findOne({email});
+
         if(user) {
             return res.status(400).json({msg: "User Already Exists"});
         }
+
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt)
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         user = new User({
             name, email, password: hashedPassword,
         });
-        await user.save()
+
+        await user.save();
 
         const payload = {
-            user: user._id,
-        };
+      user: {
+        id: user.id,
+      },
+    };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 360000});
-        const {password: pass, ...rest} = user._doc;
-        res.cookie("token", token, { httpOnly: true, expiresIn: 360000 })
 
-        res.status(201).json({msd: "User Created Successfully", user: rest})
+        res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
+
+        // const {password: pass, ...rest} = user._doc;
+
+        res.status(201).json({msg: "User Created Successfully", user, token});
 
     } catch(error) {
         console.log(error.message);
@@ -37,11 +49,13 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     const {email, password} = req.body;
+
     try{
+
         let user = await User.findOne({email});
 
         if(!user) {
-            return res.status(404).json({msg: "User Not Found"});
+            return res.status(404).json({ msg: "User Not Found" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -82,7 +96,7 @@ const getMe = async (req, res) => {
 
         const user = await User.findById(req.user);
         if(!user) {
-            return res.statuts(404).json({msg: "User Not Found"});
+            return res.status(404).json({msg: "User Not Found"});
         }
 
         const {password: pass, ...rest} = user._doc;
@@ -102,12 +116,12 @@ const updateDetails = async (req, res) => {
 
         let user = await User.findById(req.user);
         if(!user) {
-            return res.statuts(404).json({msg: "User Not Found"});
+            return res.status(404).json({msg: "User Not Found"});
         }
 
         let exists = await User.findOne({email});
         if(exists && exists._id.toString() !== user._id.toString()) {
-            return res.statuts(404).json({msg: "Email Already Exists"});
+            return res.status(404).json({msg: "Email Already Exists"});
         }
 
     user.name = name;
@@ -123,6 +137,7 @@ const updateDetails = async (req, res) => {
         res.status(500).json({errors: "Internal Server Error"});
         }
 };
+
 
 
 const updatePassword = async (req, res) => {
