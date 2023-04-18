@@ -1,106 +1,76 @@
-
 const Todo = require("../models/Todo");
+const createError = require("../utils/createError");
 
-
-const getTodos = async (req, res) => {
-
+const createTodo = async (req, res, next) => {
+    const newTodo = new Todo({
+        title: req.body.title,
+        user: req.user.id,
+        completed: req.body.completed,
+    });
     try {
-        const todos = await Todo.find({user: req.user});
-        res.status(200).json({msg: "Todo Found", todos})
-
-    }catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
+        const savedTodo = await newTodo.save();
+        return res.status(200).json(savedTodo);
+    } catch (err) {
+        return next(err);
     }
 };
 
-const getTodo = async (req, res) => {
-
-    const {id} = req.params;
-
+const updateTodo = async (req, res, next) => {
     try {
-
-        const todo = await Todo.findById(id);
-        if(!todo) {
-            res.status(404).json({msg: "Todo Not Found"});
-        }
-        if(todo.user.toString() !== req.user) {
-            res.status(401).json({msg: "Not Authorized"});
-        }
-
-        res.status(200).json({msg: "Todo Found", todo})
-
-
-    }catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
-    }
-};
-
-const createTodo = async (req, res) => {
-
-    const {title, body} = req.body;
-
-    try {
-        const todo = await Todo.create({ title, body, completed: false, user: req.user});
-        res.status(200).json({msg: "Todo Created Successfully", todo})
-
-    }catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
-    }
-};
-
-const updateTodo = async (req, res) => {
-
-    const {id} = req.params;
-    const {title, body, completed} = req.body;
-
-    try {
-        const todo = await Todo.findById(id);
-        if(!todo) {
-            return res.status(404).json({msg: "Todo Not Found"});
-        }
-
-        if(todo.user.toString() !== req.user) {
-            return res.status(401).json({msg: "Not Authorized"})
-        }
-
-        todo.title = title;
-        todo.body = body;
-        todo.completed = completed;
-
-        await todo.save();
-        res.status(200).json({msg: "Todo Updated Successfully"})
-
-    }catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
-    }
-};
-
-const deleteTodo = async (req, res) => {
-
-    const {id} = req.params;
-
-
-    try {
-        const todo = await Todo.findById(id);
-        if(!todo) {
-            return res.status(404).json({msg: "Todo Not Found"});
-        }
-
-        if(todo.user.toString() !== req.user) {
-            return res.status(401).json({msg: "Not Authorized"})
-        }
+        const todo = await Todo.findById(req.params.todoId).exec();
+        if (!todo) return next(createError({ status: 404, message: 'Todo not found' }));
+        if (todo.user.toString() !== req.user.id) return next(createError({ status: 401, message: "It's not your todo." }));
         
-        await todo.remove();
-        res.status(200).json({msg:"Todo Deleted Successfully"});
+        const updatedTodo = await Todo.findByIdAndUpdate(req.params.todoId, {
+        title: req.body.title,
+        completed: req.body.completed,
+    }, { new: true });
+        return res.status(200).json(updatedTodo);
+    } catch (err) {
+        return next(err);
+    }
+    };
 
-    }catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
+const getAllTodo = async (req, res, next) => {
+    try {
+        const todos = await Todo.find({});
+        return res.status(200).json(todos);
+    } catch (err) {
+        return next(err);
     }
 };
 
-module.exports = {getTodos, getTodo, createTodo, updateTodo, deleteTodo};
+const getCurrentUserTodo = async (req, res, next) => {
+    try {
+        const todo = await Todo.find({ user: req.user.id });
+        return res.status(200).json(todo);
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const deleteTodo = async (req, res, next) => {
+    try {
+        const todo = await Todo.findById(req.params.todoId);
+        if (todo.user === req.user.id) {
+        return next(createError({ status: 401, message: "It's not your todo." }));
+    }
+        await Todo.findByIdAndDelete(req.params.todoId);
+        return res.json('Todo Deleted Successfully');
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const deleteAllTodo = async (req, res, next) => {
+    try {
+        await Todo.deleteMany({ user: req.user.id });
+        return res.json('All Todo Deleted Successfully');
+    } catch (err) {
+        return next(err);
+    }
+};
+
+
+module.exports = {createTodo, deleteAllTodo, deleteTodo, getAllTodo, getCurrentUserTodo, updateTodo}
+

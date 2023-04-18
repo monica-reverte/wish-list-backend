@@ -26,7 +26,7 @@ app.use("/api", allRoutes);
 
 //ERROR HANDLER
 
-app.use((err, req, res,ç) => {
+app.use((err, req, res, next) => {
     const status = err.statusCode || 500;
     const message = err.message || "Internatl Server Error";
 
