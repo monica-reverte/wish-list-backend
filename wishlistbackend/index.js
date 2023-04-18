@@ -2,7 +2,6 @@ const express = require('express');
 const { dbConnection } = require("./database/config");
 const cors = require("cors");
 const allRoutes  = require("./routes/indexRoutes");
-// const usersRoutes  = require("./routes/users");
 const cookieParser = require ("cookie-parser");
 const morgan = require('morgan');
 
@@ -25,8 +24,15 @@ app.use(cookieParser());
 
 app.use("/api", allRoutes);
 
-// app.use("/api/todos", todosRoutes);
-// app.use("/api/users", usersRoutes);
+//ERROR HANDLER
+
+app.use((err, req, res,ç) => {
+    const status = err.statusCode || 500;
+    const message = err.message || "Internatl Server Error";
+
+    return res.status(status).json({message, stack: err.stack });
+})
+
 
 
 

@@ -2,11 +2,12 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const Todo = require("../models/Todo");
 const jwt = require("jsonwebtoken");
+const createError = require("../utils/error");
 
-const register = async(req, res) => {
+const register = async(req, res, next) => {
 
     if(!req.body.name || !req.body.email || !req.body.password ){
-        return res.json("required field name, email, password")
+        return next(createError({ status: 400, message: "Name, email, password is required"}));
     }
 
     try{
@@ -25,14 +26,14 @@ const register = async(req, res) => {
 
     } catch(err){
         console.log(err);
-        return res.status(500).json('Server error');
+        return next(err);
     }
 
 }
 
-const login = async(req,res) => {
+const login = async(req, res, next) => {
     if(!req.body.email || !req.body.password){
-        return res.json("required field name, password")
+        return next(createError({ status: 400, message: "Email and password is required"}));
     }
 
     try{
@@ -55,7 +56,7 @@ const login = async(req,res) => {
         return res.cookie("access_token", token, { httpOnly: true }).status(200).json({'message': "login success"})
     }catch(err){
         console.log(err);
-        return res.status(500).json('Server error');
+        return next(err);
     }
     
 }

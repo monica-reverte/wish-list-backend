@@ -6,70 +6,70 @@ const bcrypt = require("bcrypt");
 
 
 
-const register = async (req, res) => {
-    const {name, email, password} = req.body;
-    try{
+// const register = async (req, res) => {
+//     const {name, email, password} = req.body;
+//     try{
 
-        const user = await User.findOne({email});
+//         const user = await User.findOne({email});
 
-        if(user) {
-            return res.status(400).json({msg: "User Already Exists"});
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
+//         if(user) {
+//             return res.status(400).json({msg: "User Already Exists"});
+//         }
+//         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = new User({ name, email, password: hashedPassword });
-        await newUser.save();
+//         const newUser = new User({ name, email, password: hashedPassword });
+//         await newUser.save();
 
-        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
+//         const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
-        });
+//         res.cookie('token', token, {
+//             httpOnly: true,
+//             maxAge: 24 * 60 * 60 * 1000, // 1 day
+//         });
 
-        res.status(201).json({ message: 'User registered successfully' });
-
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
+//         res.status(201).json({ message: 'User registered successfully' });
 
 
-const login = async (req, res) => {
-    const {email, password} = req.body;
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// };
 
-    try{
 
-        const user = await User.findOne({email});
+// const login = async (req, res) => {
+//     const {email, password} = req.body;
 
-        if(!user) {
-            return res.status(404).json({ msg: "User Not Found" });
-        }
+//     try{
 
-        const isMatch = await bcrypt.compare(password, user.password);
+//         const user = await User.findOne({email});
+
+//         if(!user) {
+//             return res.status(404).json({ msg: "User Not Found" });
+//         }
+
+//         const isMatch = await bcrypt.compare(password, user.password);
         
-        if(!isMatch) {
-            return res.status(400).json({msg: "Invalid Credencials"});
-        }
+//         if(!isMatch) {
+//             return res.status(400).json({msg: "Invalid Credencials"});
+//         }
 
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+//         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
-        });
+//         res.cookie('token', token, {
+//             httpOnly: true,
+//             maxAge: 24 * 60 * 60 * 1000, // 1 day
+//         });
 
-        res.status(200).json({msg: "User Logged In Successfully"})
+//         res.status(200).json({msg: "User Logged In Successfully"})
 
 
-    }  catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
-    }
-};
+//     }  catch(error) {
+//         console.log(error.message);
+//         res.status(500).json({errors: "Internal Server Error"});
+//     }
+// };
 
 
 const logout = async (req, res) => {
