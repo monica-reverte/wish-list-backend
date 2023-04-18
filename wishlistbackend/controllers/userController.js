@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const Todo = require("../models/Todo");
-const jwt = require("jsonwebtoken");
+const  jwt  = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 
@@ -8,41 +8,31 @@ const bcrypt = require("bcrypt");
 
 const register = async (req, res) => {
     const {name, email, password} = req.body;
-
     try{
 
-        let user = await User.findOne({email});
+        const user = await User.findOne({email});
 
         if(user) {
             return res.status(400).json({msg: "User Already Exists"});
         }
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const newUser = new User({ name, email, password: hashedPassword });
+        await newUser.save();
 
-        user = new User({
-            name, email, password: hashedPassword,
+        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
 
-        await user.save();
+        res.status(201).json({ message: 'User registered successfully' });
 
-        const payload = {
-      user: {
-        id: user.id,
-      },
-    };
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 360000});
-
-        res.cookie("token", token, { httpOnly: true, expiresIn: 360000 });
-
-        // const {password: pass, ...rest} = user._doc;
-
-        res.status(201).json({msg: "User Created Successfully", user, token});
-
-    } catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -52,7 +42,7 @@ const login = async (req, res) => {
 
     try{
 
-        let user = await User.findOne({email});
+        const user = await User.findOne({email});
 
         if(!user) {
             return res.status(404).json({ msg: "User Not Found" });
@@ -64,16 +54,15 @@ const login = async (req, res) => {
             return res.status(400).json({msg: "Invalid Credencials"});
         }
 
-        const payload = {
-            user: user._id,
-        };
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 360000});
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
-        res.cookie("token", token, { httpOnly: true, expiresIn: 360000 })
-        const {password: pass, ...rest} = user._doc;
+        res.cookie('token', token, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
 
-        res.status(200).json({msd: "User Logged In Successfully", user: rest})
+        res.status(200).json({msg: "User Logged In Successfully"})
 
 
     }  catch(error) {
@@ -85,8 +74,16 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
 
-    res.clearCookie("token");
-    res.status(200).json({msd: "User Logged Out Successfully" })
+    try {
+        // Clear the token cookie
+        res.clearCookie('token');
+    
+        // Return a success response
+        res.status(200).json({ message: 'User logged out successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
 
@@ -94,13 +91,9 @@ const getMe = async (req, res) => {
 
     try {
 
-        const user = await User.findById(req.user);
-        if(!user) {
-            return res.status(404).json({msg: "User Not Found"});
-        }
+        const user = await User.findById(req.userId);
+        res.status(200).json({ user });
 
-        const {password: pass, ...rest} = user._doc;
-        return res.status(200).json({msg: "User Found", user: rest})
 
     }catch(error) {
     console.log(error.message);

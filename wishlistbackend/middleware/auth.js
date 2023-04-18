@@ -1,22 +1,30 @@
-const jwt = require("jsonwebtoken");
+const { jwt } = require("jsonwebtoken");
 
 
 const authorize = async (req, res, next) => {
+
+  try{
+   // Get the token from the cookies
     const token = req.cookies.token;
+    console.log(req.cookie.token)
+    // If there's no token, return an error
     if(!token) {
-        return res.status(401).json({msg: "Not Autorized"});
-    }
-    try {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user;
+      // Verify the token and extract the user ID
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); 
+      req.userId = decoded.userId;
 
-        next();
-    
-    }catch(error) {
-        console.log(error.message);
-        res.status(500).json({errors: "Internal Server Error"});
+       // Call the next middleware function
+
+      next();
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
     }
-};
+  };
 
 module.exports = authorize;
+

@@ -1,9 +1,10 @@
 const express = require('express');
 const { dbConnection } = require("./database/config");
 const cors = require("cors");
-const  todosRoutes  = require("./routes/todos");
-const  usersRoutes  = require("./routes/users");
+const allRoutes  = require("./routes/indexRoutes");
+// const usersRoutes  = require("./routes/users");
 const cookieParser = require ("cookie-parser");
+const morgan = require('morgan');
 
 
 
@@ -14,13 +15,18 @@ require("dotenv").config();
 dbConnection();
 
 // MIDDLEWARE
-app.use(express.json());
-app.use(express.urlencoded({extended: true}))
+
 app.use(cors());
+app.use(morgan("tiny"));
+app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/todos", todosRoutes);
-app.use("/api/users", usersRoutes);
+// ROUTES
+
+app.use("/api", allRoutes);
+
+// app.use("/api/todos", todosRoutes);
+// app.use("/api/users", usersRoutes);
 
 
 
