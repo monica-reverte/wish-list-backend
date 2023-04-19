@@ -1,5 +1,5 @@
-const Todo = require("../models/Todo");
-const createError = require("../utils/createError");
+const Todo = require("../models/Todo.js");
+const createError = require("../utils/createError.js");
 
 const createTodo = async (req, res, next) => {
     const newTodo = new Todo({

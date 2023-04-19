@@ -68,9 +68,7 @@ const login = async(req, res, next) => {
             expiresIn: '1d',
         });
         return res
-            .cookie('access_token', token, {
-            httpOnly: true,
-            })
+            .cookie('access_token', token)
             .status(200)
             .json({ name: user.name, email: user.email, message: 'login success' });
         } catch (err) {
@@ -89,19 +87,15 @@ const logout = (req, res) => {
 const isLoggedIn = (req, res) => {
 
     const token = req.cookies.access_token;
-
     if (!token) {
     return res.json(false);
-    }
-
-    return jwt.verify(token, process.env.JWT_SECRET, (err) => {
-
+}
+  return jwt.verify(token, process.env.JWT_SECRET, (err) => {
     if (err) {
-        return res.json(false);
+      return res.json(false);
     }
-
     return res.json(true);
-    });
+  });
 
 };
 
