@@ -6,8 +6,8 @@ const checkAuth = require('../utils/checkAuth.js');
 
 const router = express.Router();
 
-router.use("/auth", authRoutes);
-router.use("/todos", checkAuth, todosRoutes);
-router.use("/users", checkAuth, usersRoutes);
+router.use('/auth', authRoutes);
+router.use('/users', checkAuth, usersRoutes);
+router.use('/tasks', checkAuth, todosRoutes);
 
 module.exports = router;

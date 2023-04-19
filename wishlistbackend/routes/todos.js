@@ -5,10 +5,10 @@ const router = express.Router();
 
 router.get('/all', getAllTodo);
 router.post('/', createTodo);
-router.put('/:taskId', updateTodo);
-router.get('/myTasks', getCurrentUserTodo);
+router.put('/:todoId', updateTodo);
+router.get('/myTodos', getCurrentUserTodo);
 router.delete('/deleteAll', deleteAllTodo);
-router.delete('/:taskId', deleteTodo);
+router.delete('/:todoId', deleteTodo);
 
 module.exports = router;
 
