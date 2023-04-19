@@ -1,20 +1,35 @@
 const jwt = require("jsonwebtoken");
 const createError = require("./createError");
 
+
 const checkAuth = (req, res, next) => {
     const token = req.cookies.access_token;
-    if(!token) {
-        return next(createError({ status: 401, message: "Unauthorized"}));
+    if (!token) {
+      return next(createError({ status: 401, message: 'Unauthorized' }));
     }
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if(err) {
-            return next(createError({ status: 401, message: "Invalid Token"}))
-        }else{
-            req.user = decoded;
-            return next();
-        }
+    return jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return next(createError({ status: 401, message: 'Unauthorized, invalid token' }));
+      }
+      req.user = decoded;
+      return next();
     });
-};
+  };
+// const checkAuth = (req, res, next) => {
+//     const authorization = req.headers.authorization;
+//     const token = authorization.substr(7);
+//     if(!token) {
+//         return next(createError({ status: 401, message: "Unauthorized"}));
+//     }
+//     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+//         if(err) {
+//             return next(createError({ status: 401, message: "Invalid Token"}))
+//         }else{
+//             req.user = decoded;
+//             return next();
+//         }
+//     });
+// };
 
 module.exports = checkAuth;
 
