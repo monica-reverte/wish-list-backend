@@ -3,13 +3,8 @@ const { dbConnection } = require("./database/config");
 const cors = require("cors");
 const allRoutes  = require("./routes/indexRoutes");
 
-
-
-
-
 const app = express();
 require("dotenv").config();
-
 
 
 // MIDDLEWARE
@@ -23,7 +18,6 @@ app.use(express.json());
 app.use("/api", allRoutes);
 
 dbConnection();
-
 
 
 // SERVIDOR WEB

@@ -41,7 +41,6 @@ const getAllTodo = async (req, res) => {
 
     try {
         const todos = await Todo.find({ user: req.params.user })    
-            console.log(todos);
         return res.status(200).json(todos);
     } catch (err) {
         return res.status(503).json({
@@ -70,13 +69,15 @@ const deleteTodo = async (req, res) => {
 
 const deleteAllTodo = async (req, res) => {
     try {
-        await Todo.deleteMany({ user: req.user.id });
-        return res.json('All Todo Deleted Successfully');
+        await Todo.deleteMany({ user: req.params.user });
+        return res.json({
+            ok: true,
+            message:'All Todo Deleted Successfully'});
     } catch (err) {
         return res.status(503).json({
             ok: false,
             message: "Something happened"
-          })
+        })
     }
 };
 
