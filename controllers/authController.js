@@ -39,10 +39,12 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
+  
 
   try {
 
     const user = await User.findOne({email : req.body.email});
+    
     if(user){
       return res.status(400).json({
         ok: false,
