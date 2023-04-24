@@ -93,7 +93,6 @@ const firebaseLogin = async (req, res) => {
         name: req.body.displayName,
         email: req.body.email,       
       });
-      console.log(newUser)
       await newUser.save();
       return res.status(201).json({
         ok: true,
